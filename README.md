@@ -1,4 +1,4 @@
-## Dockerfile for ElasticSearch and Kibana
+## Dockerfile for Elasticsearch and Kibana
 
 Simple and lightweight docker image to run Elasticsearch server and Kibana front-end.
 
