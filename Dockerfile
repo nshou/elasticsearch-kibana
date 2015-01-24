@@ -22,6 +22,6 @@ RUN cd /tmp && \
     rm -f kibana-${KIBANA_VERSION}.tar.gz && \
     mv /tmp/kibana-${KIBANA_VERSION} /kibana
 
-CMD /elasticsearch/bin/elasticsearch -Des.logger.level=OFF & mini-httpd -d /kibana -h `hostname` -r -D -p 8000
+CMD /elasticsearch/bin/elasticsearch -Des.http.cors.enabled=true -Des.logger.level=OFF & mini-httpd -d /kibana -h `hostname` -r -D -p 8000
 
 EXPOSE 8000 9200
