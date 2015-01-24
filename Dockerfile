@@ -6,7 +6,7 @@ RUN apt-get update -q
 
 RUN apt-get install -yq wget default-jre-headless mini-httpd
 
-ENV ES_VERSION 1.3.4
+ENV ES_VERSION 1.4.2
 
 RUN cd /tmp && \
     wget -nv https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz && \
@@ -14,7 +14,7 @@ RUN cd /tmp && \
     rm -f elasticsearch-${ES_VERSION}.tar.gz && \
     mv /tmp/elasticsearch-${ES_VERSION} /elasticsearch
 
-ENV KIBANA_VERSION 3.1.1
+ENV KIBANA_VERSION 3.1.2
 
 RUN cd /tmp && \
     wget -nv https://download.elasticsearch.org/kibana/kibana/kibana-${KIBANA_VERSION}.tar.gz && \
