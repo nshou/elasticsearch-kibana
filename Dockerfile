@@ -6,7 +6,7 @@ RUN apt-get update -q
 
 RUN apt-get install -yq wget default-jre-headless mini-httpd
 
-ENV ES_VERSION 1.4.2
+ENV ES_VERSION 1.4.4
 
 RUN cd /tmp && \
     wget -nv https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz && \
