@@ -6,10 +6,10 @@ RUN apt-get update -q
 
 RUN apt-get install -yq wget default-jre-headless
 
-ENV ES_VERSION 1.7.2
+ENV ES_VERSION 2.1.1
 
 RUN cd /tmp && \
-    wget -nv https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz && \
+    wget -nv https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/${ES_VERSION}/elasticsearch-${ES_VERSION}.tar.gz && \
     tar zxf elasticsearch-${ES_VERSION}.tar.gz && \
     rm -f elasticsearch-${ES_VERSION}.tar.gz && \
     mv /tmp/elasticsearch-${ES_VERSION} /elasticsearch
