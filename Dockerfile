@@ -26,6 +26,6 @@ RUN wget -nv https://download.elastic.co/kibana/kibana/kibana-${KIBANA_VERSION}-
     rm -f kibana-${KIBANA_VERSION}-linux-x64.tar.gz && \
     mv kibana-${KIBANA_VERSION}-linux-x64 kibana
 
-CMD elasticsearch/bin/elasticsearch -Des.logger.level=OFF --network.host _non_loopback_ & kibana/bin/kibana -q
+CMD elasticsearch/bin/elasticsearch -Des.logger.level=OFF --network.host 0.0.0.0 & kibana/bin/kibana -q
 
 EXPOSE 9200 5601
