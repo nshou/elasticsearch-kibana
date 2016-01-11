@@ -12,7 +12,7 @@ Then you can connect to Elasticsearch by `localhost:9200` and its Kibana front-e
 
 * latest
 
-    Elasticsearch-2.1.1 Kibana-4.1.2
+    Elasticsearch-2.1.1 Kibana-4.3.1
 
 * kibana3
 
