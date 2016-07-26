@@ -1,31 +1,27 @@
-FROM ubuntu:latest
+FROM java:jre-alpine
 
 MAINTAINER nshou <nshou@coronocoya.net>
 
-RUN apt-get update -q
+ENV ES_VERSION=2.3.4 \
+    KIBANA_VERSION=4.5.3
 
-RUN apt-get install -yq wget default-jre-headless
-
-RUN useradd -m elasticsearch
+RUN apk add --quiet --no-progress --no-cache nodejs \
+ && adduser -D elasticsearch
 
 USER elasticsearch
 
 WORKDIR /home/elasticsearch
 
-ENV ES_VERSION 2.1.1
+RUN wget -q -O - http://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/${ES_VERSION}/elasticsearch-${ES_VERSION}.tar.gz \
+ |  tar -zx \
+ && mv elasticsearch-${ES_VERSION} elasticsearch \
+ && wget -q -O - http://download.elastic.co/kibana/kibana/kibana-${KIBANA_VERSION}-linux-x64.tar.gz \
+ |  tar -zx \
+ && mv kibana-${KIBANA_VERSION}-linux-x64 kibana \
+ && rm -f kibana/node/bin/node kibana/node/bin/npm \
+ && ln -s $(which node) kibana/node/bin/node \
+ && ln -s $(which npm) kibana/node/bin/npm
 
-RUN wget -nv https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/${ES_VERSION}/elasticsearch-${ES_VERSION}.tar.gz && \
-    tar zxf elasticsearch-${ES_VERSION}.tar.gz && \
-    rm -f elasticsearch-${ES_VERSION}.tar.gz && \
-    mv elasticsearch-${ES_VERSION} elasticsearch
-
-ENV KIBANA_VERSION 4.3.1
-
-RUN wget -nv https://download.elastic.co/kibana/kibana/kibana-${KIBANA_VERSION}-linux-x64.tar.gz && \
-    tar zxf kibana-${KIBANA_VERSION}-linux-x64.tar.gz && \
-    rm -f kibana-${KIBANA_VERSION}-linux-x64.tar.gz && \
-    mv kibana-${KIBANA_VERSION}-linux-x64 kibana
-
-CMD elasticsearch/bin/elasticsearch -Des.logger.level=OFF --network.host 0.0.0.0 & kibana/bin/kibana -q
+CMD elasticsearch/bin/elasticsearch --es.logger.level=OFF --network.host=0.0.0.0 & kibana/bin/kibana -Q
 
 EXPOSE 9200 5601
