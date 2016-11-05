@@ -10,10 +10,8 @@ Then you can connect to Elasticsearch by `localhost:9200` and its Kibana front-e
 
 ### Tags
 
-* latest
-
-    Elasticsearch-2.4.1 Kibana-4.6.2
-
-* kibana3
-
-    Elasticsearch-1.7.4 Kibana-3.1.3
+Tag     | Elasticsearch | Kibana
+------- | ------------- | ------
+latest  | 5.0.0         | 5.0.0
+kibana4 | 2.4.1         | 4.6.2
+kibana3 | 1.7.4         | 3.1.3
