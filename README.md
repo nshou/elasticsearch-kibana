@@ -1,6 +1,6 @@
 ## Elasticsearch and Kibana in one container
 
-Simple and lightweight docker image to run Elasticsearch and Kibana.
+Simple and lightweight docker image for previewing Elasticsearch and Kibana.
 
 ### Usage
 
