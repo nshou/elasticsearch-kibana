@@ -12,14 +12,8 @@ Then you can connect to Elasticsearch by `localhost:9200` and its Kibana front-e
 
 * latest
 
-    Elasticsearch-2.1.1 Kibana-4.3.1
+    Elasticsearch-2.4.1 Kibana-4.6.2
 
 * kibana3
 
     Elasticsearch-1.7.4 Kibana-3.1.3
-
-### Tips
-
-* Install plugins
-
-    `docker exec CONTAINER /elasticsearch/bin/plugin -install PLUGIN_NAME`
