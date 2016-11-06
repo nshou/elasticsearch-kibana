@@ -1,4 +1,4 @@
-FROM java:jre-alpine
+FROM openjdk:jre-alpine
 
 MAINTAINER nshou <nshou@coronocoya.net>
 
