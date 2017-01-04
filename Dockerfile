@@ -2,8 +2,8 @@ FROM openjdk:jre-alpine
 
 MAINTAINER nshou <nshou@coronocoya.net>
 
-ENV ES_VERSION=5.0.0 \
-    KIBANA_VERSION=5.0.0
+ENV ES_VERSION=5.1.1 \
+    KIBANA_VERSION=5.1.1
 
 RUN apk add --quiet --no-progress --no-cache nodejs wget \
  && adduser -D elasticsearch
