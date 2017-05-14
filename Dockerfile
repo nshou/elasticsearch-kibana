@@ -1,6 +1,6 @@
 FROM openjdk:jre-alpine
 
-MAINTAINER nshou <nshou@coronocoya.net>
+LABEL maintainer "nshou <nshou@coronocoya.net>"
 
 ENV ES_VERSION=5.4.0 \
     KIBANA_VERSION=5.4.0
