@@ -2,8 +2,8 @@ FROM openjdk:jre-alpine
 
 LABEL maintainer "nshou <nshou@coronocoya.net>"
 
-ENV ES_VERSION=5.6.2 \
-    KIBANA_VERSION=5.6.2
+ENV ES_VERSION=5.6.6 \
+    KIBANA_VERSION=5.6.6
 
 RUN apk add --quiet --no-progress --no-cache nodejs wget \
  && adduser -D elasticsearch
