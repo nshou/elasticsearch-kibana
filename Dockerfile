@@ -2,7 +2,7 @@ FROM openjdk:jre-alpine
 
 LABEL maintainer "nshou <nshou@coronocoya.net>"
 
-ARG ek_version=6.2.1
+ARG ek_version=6.3.1
 
 RUN apk add --quiet --no-progress --no-cache nodejs wget \
  && adduser -D elasticsearch
@@ -13,11 +13,11 @@ WORKDIR /home/elasticsearch
 
 ENV ES_TMPDIR=/home/elasticsearch/elasticsearch.tmp
 
-RUN wget -q -O - https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ek_version}.tar.gz \
+RUN wget -q -O - https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-${ek_version}.tar.gz \
  |  tar -zx \
  && mv elasticsearch-${ek_version} elasticsearch \
  && mkdir -p ${ES_TMPDIR} \
- && wget -q -O - https://artifacts.elastic.co/downloads/kibana/kibana-${ek_version}-linux-x86_64.tar.gz \
+ && wget -q -O - https://artifacts.elastic.co/downloads/kibana/kibana-oss-${ek_version}-linux-x86_64.tar.gz \
  |  tar -zx \
  && mv kibana-${ek_version}-linux-x86_64 kibana \
  && rm -f kibana/node/bin/node kibana/node/bin/npm \
