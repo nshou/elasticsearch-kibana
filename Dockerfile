@@ -11,12 +11,12 @@ USER elasticsearch
 
 WORKDIR /home/elasticsearch
 
-ENV ES_TMPDIR=/home/elasticsearch/elasticsearch.tmp
+ENV ES_TMPDIR=/home/elasticsearch/elasticsearch.tmp ES_DATADIR=/home/elasticsearch/elasticsearch/data
 
 RUN wget -q -O - https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-${ek_version}.tar.gz \
  |  tar -zx \
  && mv elasticsearch-${ek_version} elasticsearch \
- && mkdir -p ${ES_TMPDIR} \
+ && mkdir -p ${ES_TMPDIR} ${ES_DATADIR} \
  && wget -q -O - https://artifacts.elastic.co/downloads/kibana/kibana-oss-${ek_version}-linux-x86_64.tar.gz \
  |  tar -zx \
  && mv kibana-${ek_version}-linux-x86_64 kibana \
