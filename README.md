@@ -12,7 +12,7 @@ Then you can connect to Elasticsearch by `localhost:9200` and its Kibana front-e
 
 Tag     | Elasticsearch | Kibana
 ------- | ------------- | ------
-latest  | 7.1.1         | 7.1.1
+latest  | 7.5.1         | 7.5.1
 kibana6 | 6.5.4         | 6.5.4
 kibana5 | 5.6.6         | 5.6.6
 kibana4 | 2.4.1         | 4.6.2
