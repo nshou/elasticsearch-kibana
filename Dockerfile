@@ -24,6 +24,6 @@ RUN wget -q -O - https://artifacts.elastic.co/downloads/elasticsearch/elasticsea
  && rm -f kibana/node/bin/node \
  && ln -s $(which node) kibana/node/bin/node
 
-CMD sh elasticsearch/bin/elasticsearch -E http.host=0.0.0.0 --quiet & kibana/bin/kibana --host 0.0.0.0 -Q
+CMD sh elasticsearch/bin/elasticsearch -E http.host=0.0.0.0 --quiet & kibana/bin/kibana --allow-root --host 0.0.0.0 -Q
 
 EXPOSE 9200 5601
