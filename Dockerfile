@@ -1,29 +1,23 @@
-FROM node:10.15.2-alpine
+FROM openjdk:11-jre-slim
 
 LABEL maintainer "nshou <nshou@coronocoya.net>"
 
-ARG ek_version=7.5.1
+ENV EK_VERSION=7.7.0
 
-RUN apk add --quiet --no-progress --no-cache openjdk8-jre-base \
- && adduser -D elasticsearch
+RUN apt-get update -qq >/dev/null 2>&1 \
+ && apt-get install wget sudo -qqy >/dev/null 2>&1 \
+ && useradd -m -s /bin/bash elasticsearch \
+ && echo elasticsearch ALL=NOPASSWD: ALL >/etc/sudoers.d/elasticsearch \
+ && chmod 440 /etc/sudoers.d/elasticsearch
 
 USER elasticsearch
 
 WORKDIR /home/elasticsearch
 
-ENV ES_DATADIR=/home/elasticsearch/elasticsearch/data \
-    JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk
+RUN wget -q -O - https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-${EK_VERSION}-no-jdk-linux-x86_64.tar.gz | tar -zx \
+ && mkdir -p elasticsearch-${EK_VERSION}/data \
+ && wget -q -O - https://artifacts.elastic.co/downloads/kibana/kibana-oss-${EK_VERSION}-linux-x86_64.tar.gz | tar -zx
 
-RUN wget -q -O - https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-${ek_version}-no-jdk-linux-x86_64.tar.gz \
- |  tar -zx \
- && mv elasticsearch-${ek_version} elasticsearch \
- && mkdir -p ${ES_DATADIR} \
- && wget -q -O - https://artifacts.elastic.co/downloads/kibana/kibana-oss-${ek_version}-linux-x86_64.tar.gz \
- |  tar -zx \
- && mv kibana-${ek_version}-linux-x86_64 kibana \
- && rm -f kibana/node/bin/node \
- && ln -s $(which node) kibana/node/bin/node
-
-CMD sh elasticsearch/bin/elasticsearch -E http.host=0.0.0.0 --quiet & kibana/bin/kibana --allow-root --host 0.0.0.0 -Q
+CMD elasticsearch-${EK_VERSION}/bin/elasticsearch -E http.host=0.0.0.0 --quiet & kibana-${EK_VERSION}-linux-x86_64/bin/kibana --allow-root --host 0.0.0.0 -Q
 
 EXPOSE 9200 5601
