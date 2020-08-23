@@ -2,7 +2,7 @@ FROM openjdk:11-jre-slim
 
 LABEL maintainer "nshou <nshou@coronocoya.net>"
 
-ENV EK_VERSION=7.7.0
+ENV EK_VERSION=7.9.0
 
 RUN apt-get update -qq >/dev/null 2>&1 \
  && apt-get install wget sudo -qqy >/dev/null 2>&1 \
