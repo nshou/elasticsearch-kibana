@@ -2,7 +2,7 @@ FROM openjdk:11-jre-slim
 
 LABEL maintainer "nshou <nshou@coronocoya.net>"
 
-ENV EK_VERSION=7.10.2
+ENV EK_VERSION=7.12.1
 
 RUN apt-get update -qq >/dev/null 2>&1 \
  && apt-get install wget sudo -qqy >/dev/null 2>&1 \
@@ -14,9 +14,9 @@ USER elasticsearch
 
 WORKDIR /home/elasticsearch
 
-RUN wget -q -O - https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-${EK_VERSION}-no-jdk-linux-x86_64.tar.gz | tar -zx \
+RUN wget -q -O - https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${EK_VERSION}-no-jdk-linux-x86_64.tar.gz | tar -zx \
  && mkdir -p elasticsearch-${EK_VERSION}/data \
- && wget -q -O - https://artifacts.elastic.co/downloads/kibana/kibana-oss-${EK_VERSION}-linux-x86_64.tar.gz | tar -zx
+ && wget -q -O - https://artifacts.elastic.co/downloads/kibana/kibana-${EK_VERSION}-linux-x86_64.tar.gz | tar -zx
 
 CMD elasticsearch-${EK_VERSION}/bin/elasticsearch -E http.host=0.0.0.0 --quiet & kibana-${EK_VERSION}-linux-x86_64/bin/kibana --allow-root --host 0.0.0.0 -Q
 

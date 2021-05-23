@@ -2,7 +2,6 @@ Elasticsearch-kibana
 Copyright (c) 2014 coronocoya.net <nshou@coronocoya.net>
 
 --
-This product bundles Elasticsearch which is available under the Apache License 2.0.
-
---
-This product bundles Kibana which is available under the Apache License 2.0.
+All the files in this repository are distributed under MIT license (see COPYING.)
+Once you build the docker image or you download one from Dockerhub, it contains the directories named `elasticsearch-${version}` and
+`kibana-${version}-linux-x86_64` under `/home/elasticsearch`. All the files under those 2 directories are governed by Elastic License 2.0.
