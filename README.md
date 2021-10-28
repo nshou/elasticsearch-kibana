@@ -12,7 +12,7 @@ You can connect to Elasticsearch through `localhost:9200` and explore Kibana via
 
 Tag     | Elasticsearch | Kibana
 ------- | ------------- | ------
-latest  | 7.12.1        | 7.12.1
+latest  | 7.15.1        | 7.15.1
 kibana6 | 6.5.4         | 6.5.4
 kibana5 | 5.6.6         | 5.6.6
 kibana4 | 2.4.1         | 4.6.2
