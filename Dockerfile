@@ -2,7 +2,7 @@ FROM openjdk:11-jre-slim
 
 LABEL maintainer "nshou <nshou@coronocoya.net>"
 
-ENV EK_VERSION=7.16.2
+ENV EK_VERSION=7.17.9
 ENV ES_JAVA_HOME=/usr/local/openjdk-11
 
 RUN apt-get update -qq >/dev/null 2>&1 \
