@@ -21,6 +21,6 @@ RUN wget -q -O - https://artifacts.elastic.co/downloads/kibana/kibana-${EK_VERSI
 
 COPY entrypoint.sh .
 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["bash", "entrypoint.sh"]
 
 EXPOSE 9200 5601
