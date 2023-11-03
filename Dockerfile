@@ -15,8 +15,9 @@ USER elastic
 WORKDIR /home/elastic
 
 RUN wget -q -O - https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${EK_VERSION}-linux-x86_64.tar.gz | tar -zx \
-    && mkdir -p elasticsearch-${EK_VERSION}/data \
-    && wget -q -O - https://artifacts.elastic.co/downloads/kibana/kibana-${EK_VERSION}-linux-x86_64.tar.gz | tar -zx
+    && mkdir -p elasticsearch-${EK_VERSION}/data
+
+RUN wget -q -O - https://artifacts.elastic.co/downloads/kibana/kibana-${EK_VERSION}-linux-x86_64.tar.gz | tar -zx
 
 COPY entrypoint.sh .
 
