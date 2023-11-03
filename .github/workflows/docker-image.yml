@@ -24,5 +24,5 @@ jobs:
 
       - name: Build and tag the Docker image
         run: |
-          docker build . --file Dockerfile --tag ghcr.io/${{ github.repository_owner }}/elasticsearch-kibana:sslkibana8
-          docker push ghcr.io/${{ github.repository_owner }}/elasticsearch-kibana:sslkibana8
+          docker build . --file Dockerfile --tag ghcr.io/${{ github.repository_owner }}/elasticsearch-kibana:ssl8
+          docker push ghcr.io/${{ github.repository_owner }}/elasticsearch-kibana:ssl8
