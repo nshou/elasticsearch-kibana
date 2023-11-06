@@ -1,4 +1,4 @@
-name: Docker Image Build CI
+name: Build Docker Image for GHCR
 
 on:
   push:
@@ -13,16 +13,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout to the main repository
       - name: Checkout the repository
         uses: actions/checkout@v2
 
+      # Setup the `docker build` commands
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
+      # Push the docker image to the Github repository Registry
       - name: Login to GitHub Container Registry
         run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
 
-      - name: Build and tag the Docker image
+      # Build the image and push it to the repo registry
+      - name: Build and tag the Github Repo image
         run: |
-          docker build . --file Dockerfile --tag ghcr.io/${{ github.repository_owner }}/elasticsearch-kibana:ssl8
-          docker push ghcr.io/${{ github.repository_owner }}/elasticsearch-kibana:ssl8
+          docker build . --file Dockerfile --tag ghcr.io/${{ github.repository_owner }}/elasticsearch-kibana:latest
+          docker push ghcr.io/${{ github.repository_owner }}/elasticsearch-kibana:latest
