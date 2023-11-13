@@ -115,11 +115,9 @@ if [[ "${SSL_MODE}" == "true" ]]; then
       );
       exit_code=$?
       if [ $exit_code -eq 0 ]; then
-
+      
         # Generate new password and grab the value from 'awk'
-        ELASTIC_NEW_PASSWORD=$(echo "$ELASTIC_RANDOM_PASSWORD" | awk '/New value:/ {print $3}');    
-
-        clear
+        ELASTIC_NEW_PASSWORD=$(echo "$ELASTIC_RANDOM_PASSWORD" | awk '/New value:/ {print $3}');
         echo "----------------------------------------------------------------------------------"
         echo "Elasticsearch + Kibana is now fully configured, you may access the stack below"
         echo "     URL: https://localhost:5601/"
@@ -135,7 +133,6 @@ if [[ "${SSL_MODE}" == "true" ]]; then
     fi
   done &
 
-  # Start Kibana in SSL mode
   kibana-${EK_VERSION}/bin/kibana \
     -Q \
     --allow-root \
@@ -150,6 +147,7 @@ if [[ "${SSL_MODE}" == "true" ]]; then
     --elasticsearch.ssl.key=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/instance/instance.key \
     --elasticsearch.ssl.verificationMode=certificate \
     --elasticsearch.serviceAccountToken=${KIBANA_SERVICE_TOKEN}
+  # Start Kibana in SSL Mode
 
 elif [[ "${SSL_MODE}" == "false" ]]; then
   # Show the connection URLS
