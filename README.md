@@ -27,6 +27,7 @@ elasticsearch-${EK_VERSION}/bin/elasticsearch-reset-password \
       --url "https://localhost:9200" \
       -u elastic \
       -b \
+      -i \
       -E xpack.security.http.ssl.enabled=true \
       -E xpack.security.http.ssl.certificate=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/instance/instance.crt \
       -E xpack.security.http.ssl.key=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/instance/instance.key \
