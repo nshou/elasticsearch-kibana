@@ -59,8 +59,6 @@ if [[ ! -f /home/elastic/cert_bundle.zip ]]; then
   unzip -qq /home/elastic/kibana_cert_bundle.zip -d /home/elastic/kibana-${EK_VERSION}/ #unzips as 'ca/'
 
   # ----------------------------
-
-  # ----------------------------
   # AUTHENTICATION SETUP
   # ----------------------------
 
@@ -82,7 +80,10 @@ echo "SSL ENABLED: '${SSL_MODE}'"
 echo "----------------------------------------------------------------------------------"
 
 if [[ "${SSL_MODE}" == "true" ]]; then
-  #Start Elasticsearch in SSL mode
+  # ----------------------------
+  # Start Elastic / Kibana [SSL]
+  # ----------------------------
+  
   elasticsearch-${EK_VERSION}/bin/elasticsearch \
     --quiet \
     -E http.host=0.0.0.0 \
@@ -115,18 +116,17 @@ if [[ "${SSL_MODE}" == "true" ]]; then
       );
       exit_code=$?
       if [ $exit_code -eq 0 ]; then
-      
-        # Generate new password and grab the value from 'awk'
+        # Random password for Elastic
         ELASTIC_NEW_PASSWORD=$(echo "$ELASTIC_RANDOM_PASSWORD" | awk '/New value:/ {print $3}');
+
+        # Output password details to console post-start
         echo "----------------------------------------------------------------------------------"
         echo "Elasticsearch + Kibana is now fully configured, you may access the stack below"
         echo "     URL: https://localhost:5601/"
         echo "    User: 'elastic'"
         echo "Password: '$ELASTIC_NEW_PASSWORD'"
         echo "----------------------------------------------------------------------------------"
-
-        # Flip global check value to stop this loop
-        password_reset_elastic=true  
+        password_reset_elastic=true
       fi
     else
       sleep 1
@@ -147,10 +147,11 @@ if [[ "${SSL_MODE}" == "true" ]]; then
     --elasticsearch.ssl.key=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/instance/instance.key \
     --elasticsearch.ssl.verificationMode=certificate \
     --elasticsearch.serviceAccountToken=${KIBANA_SERVICE_TOKEN}
-  # Start Kibana in SSL Mode
 
 elif [[ "${SSL_MODE}" == "false" ]]; then
-  # Show the connection URLS
+  # ----------------------------
+  # Start Elastic / Kibana [NO-SSL]
+  # ----------------------------
   echo "------- Starting Elasticsearch + Kibana -------"
   echo "       Kibana URL: http://localhost:5601/"
   echo "Elasticsearch URL: http://localhost:9200/"
