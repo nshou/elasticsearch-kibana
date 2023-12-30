@@ -12,6 +12,7 @@ check_elasticsearch_running() {
   fi
 }
 
+# Flag to stop our loop once Elastic starts and the password is reset
 password_reset_elastic=false
 
 # Check if certificates have already been generated
@@ -23,7 +24,7 @@ if [[ ! -f /home/elastic/cert_bundle.zip ]]; then
   
   # Generate CA HTTP Certs
   elasticsearch-${EK_VERSION}/bin/elasticsearch-certutil ca --silent --pem --out /home/elastic/ca_bundle.zip
-  unzip -qq /home/elastic/ca_bundle.zip -d /home/elastic/elasticsearch-${EK_VERSION}/config/certs/ #unzips as 'ca/'
+  unzip -qq /home/elastic/ca_bundle.zip -d /home/elastic/elasticsearch-${EK_VERSION}/config/certs/
 
   # Generate SSL HTTP Certs
   elasticsearch-${EK_VERSION}/bin/elasticsearch-certutil cert \
@@ -35,7 +36,7 @@ if [[ ! -f /home/elastic/cert_bundle.zip ]]; then
     --dns localhost \
     --dns ${HOSTNAME} \
     --ip 127.0.0.1;
-  unzip -qq /home/elastic/cert_bundle.zip -d /home/elastic/elasticsearch-${EK_VERSION}/config/certs/ #unzips as 'instance/'
+  unzip -qq /home/elastic/cert_bundle.zip -d /home/elastic/elasticsearch-${EK_VERSION}/config/certs/
 
 
   # Kibana SSL HTTP CSR Generation
@@ -44,7 +45,7 @@ if [[ ! -f /home/elastic/cert_bundle.zip ]]; then
     -dns ${HOSTNAME} \
     -name ${HOSTNAME} \
     --out /home/elastic/kibana_csr_bundle.zip;
-  unzip -qq /home/elastic/kibana_csr_bundle.zip -d /home/elastic/kibana-${EK_VERSION}/ #unzips as '${HOSTNAME}/ca/'
+  unzip -qq /home/elastic/kibana_csr_bundle.zip -d /home/elastic/kibana-${EK_VERSION}/
 
   # Setup Kibana HTTP SSL Certs
   elasticsearch-${EK_VERSION}/bin/elasticsearch-certutil cert \
@@ -56,9 +57,7 @@ if [[ ! -f /home/elastic/cert_bundle.zip ]]; then
     --ca-cert /home/elastic/elasticsearch-${EK_VERSION}/config/certs/ca/ca.crt \
     --ca-key /home/elastic/elasticsearch-${EK_VERSION}/config/certs/ca/ca.key \
     --ip 127.0.0.1;
-  unzip -qq /home/elastic/kibana_cert_bundle.zip -d /home/elastic/kibana-${EK_VERSION}/ #unzips as 'ca/'
-
-  # ----------------------------
+  unzip -qq /home/elastic/kibana_cert_bundle.zip -d /home/elastic/kibana-${EK_VERSION}/
 
   # ----------------------------
   # AUTHENTICATION SETUP
@@ -82,7 +81,10 @@ echo "SSL ENABLED: '${SSL_MODE}'"
 echo "----------------------------------------------------------------------------------"
 
 if [[ "${SSL_MODE}" == "true" ]]; then
-  #Start Elasticsearch in SSL mode
+  # ----------------------------
+  # Start Elastic / Kibana [SSL]
+  # ----------------------------
+  
   elasticsearch-${EK_VERSION}/bin/elasticsearch \
     --quiet \
     -E http.host=0.0.0.0 \
@@ -115,27 +117,24 @@ if [[ "${SSL_MODE}" == "true" ]]; then
       );
       exit_code=$?
       if [ $exit_code -eq 0 ]; then
+        # Random password for Elasticsearch superuser
+        ELASTIC_NEW_PASSWORD=$(echo "$ELASTIC_RANDOM_PASSWORD" | awk '/New value:/ {print $3}');
+        echo "ELASTIC_NEW_PASSWORD=$ELASTIC_NEW_PASSWORD" >> /home/elastic/.env
 
-        # Generate new password and grab the value from 'awk'
-        ELASTIC_NEW_PASSWORD=$(echo "$ELASTIC_RANDOM_PASSWORD" | awk '/New value:/ {print $3}');    
-
-        clear
+        # Output password details to console post-start
         echo "----------------------------------------------------------------------------------"
         echo "Elasticsearch + Kibana is now fully configured, you may access the stack below"
         echo "     URL: https://localhost:5601/"
         echo "    User: 'elastic'"
         echo "Password: '$ELASTIC_NEW_PASSWORD'"
         echo "----------------------------------------------------------------------------------"
-
-        # Flip global check value to stop this loop
-        password_reset_elastic=true  
+        password_reset_elastic=true
       fi
     else
       sleep 1
     fi
   done &
 
-  # Start Kibana in SSL mode
   kibana-${EK_VERSION}/bin/kibana \
     -Q \
     --allow-root \
@@ -152,7 +151,9 @@ if [[ "${SSL_MODE}" == "true" ]]; then
     --elasticsearch.serviceAccountToken=${KIBANA_SERVICE_TOKEN}
 
 elif [[ "${SSL_MODE}" == "false" ]]; then
-  # Show the connection URLS
+  # ----------------------------
+  # Start Elastic / Kibana [NO-SSL]
+  # ----------------------------
   echo "------- Starting Elasticsearch + Kibana -------"
   echo "       Kibana URL: http://localhost:5601/"
   echo "Elasticsearch URL: http://localhost:9200/"

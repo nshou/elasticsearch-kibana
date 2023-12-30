@@ -5,8 +5,11 @@ LABEL maintainer "nshou <nshou@coronocoya.net>"
 # Elasticsearch / Kibana Stack version.
 ENV EK_VERSION=8.10.4
 
-# Enable Security for Elasticsearch / Kibana
+# Enable Security for Elasticsearch / Kibana.
 ENV SSL_MODE=true
+
+# Elasticsearch 'elastic' superuser password.
+ENV ELASTIC_NEW_PASSWORD=mysupersecretpassword
 
 RUN apt-get update -qq >/dev/null 2>&1 \
     && apt-get install wget unzip curl sudo -qqy >/dev/null 2>&1 \
