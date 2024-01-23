@@ -104,29 +104,27 @@ if [[ "${SSL_MODE}" == "true" ]]; then
   while [ "$password_reset_elastic" = false ]; do
     if check_elasticsearch_running; then
       sleep 5;
-      ELASTIC_RANDOM_PASSWORD=$(
-        elasticsearch-${EK_VERSION}/bin/elasticsearch-reset-password \
-        -v \
-        --url "https://localhost:9200" \
-        -u elastic \
-        -b \
-        -E xpack.security.http.ssl.enabled=true \
-        -E xpack.security.http.ssl.certificate=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/instance/instance.crt \
-        -E xpack.security.http.ssl.key=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/instance/instance.key \
-        -E xpack.security.http.ssl.certificate_authorities=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/ca/ca.crt
-      );
+      printf "$ELASTIC_PASSWORD_RESET\n$ELASTIC_PASSWORD_RESET" | elasticsearch-${EK_VERSION}/bin/elasticsearch-reset-password \
+      --url "https://localhost:9200" \
+      -u elastic \
+      -i \
+      -b \
+      -E xpack.security.http.ssl.enabled=true \
+      -E xpack.security.http.ssl.certificate=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/instance/instance.crt \
+      -E xpack.security.http.ssl.key=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/instance/instance.key \
+      -E xpack.security.http.ssl.certificate_authorities=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/ca/ca.crt >/dev/null 2>&1
       exit_code=$?
       if [ $exit_code -eq 0 ]; then
-        # Random password for Elasticsearch superuser
-        ELASTIC_NEW_PASSWORD=$(echo "$ELASTIC_RANDOM_PASSWORD" | awk '/New value:/ {print $3}');
-        echo "ELASTIC_NEW_PASSWORD=$ELASTIC_NEW_PASSWORD" >> /home/elastic/.env
+
+        # Place the password into the filesystem as `.env`
+        echo "ELASTIC_PASSWORD_RESET=$ELASTIC_PASSWORD_RESET" >> /home/elastic/.env
 
         # Output password details to console post-start
         echo "----------------------------------------------------------------------------------"
         echo "Elasticsearch + Kibana is now fully configured, you may access the stack below"
         echo "     URL: https://localhost:5601/"
         echo "    User: 'elastic'"
-        echo "Password: '$ELASTIC_NEW_PASSWORD'"
+        echo "Password: '$ELASTIC_PASSWORD_RESET'"
         echo "----------------------------------------------------------------------------------"
         password_reset_elastic=true
       fi
