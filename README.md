@@ -16,6 +16,15 @@ docker run -d -p 9200:9200 -p 5601:5601 nshou/elasticsearch-kibana
 ```bash
 docker run -d -p 9200:9200 -p 5601:5601 ghcr.io/nshou/elasticsearch-kibana
 ```
+---
+
+### `ENV` Mutable Variables
+
+|           Name            |    Type   |                                  Description                                   |
+|---------------------------|-----------|--------------------------------------------------------------------------------|
+| `SSL_MODE`                | `boolean` | Toggles between SSL / TLS Modes for Elasticsearch + Kibana.                    |
+| `ELASTIC_PASSWORD_RESET`  | `string`  | Set a manual password on boot to use for the `elastic` superuser.              |
+| `RANDOM_PASSWORD_ON_BOOT` | `boolean` | Sets a random password on boot. Overrides `ELASTIC_PASSWORD_RESET` if enabled. |
 
 ---
 
