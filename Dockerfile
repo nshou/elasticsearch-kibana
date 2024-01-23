@@ -8,6 +8,10 @@ ENV EK_VERSION=8.10.4
 # Enable Security for Elasticsearch / Kibana.
 ENV SSL_MODE=true
 
+# Generate a random password at start or not
+# NOTE: If this is set then the `ELASTIC_PASSWORD_RESET` is disabled.
+ENV RANDOM_PASSWORD_ON_BOOT=true
+
 # Elasticsearch 'elastic' superuser password.
 ENV ELASTIC_PASSWORD_RESET=mysupersecretpassword
 
