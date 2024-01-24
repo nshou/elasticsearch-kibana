@@ -9,52 +9,54 @@ The password for the instance will be output to the console at first launch.
 ### Usage
 *Dockerhub*
 ```bash
+# No persistence
 docker run -d -p 9200:9200 -p 5601:5601 nshou/elasticsearch-kibana
+
+# Persistent data (named: ek_data)
+docker run -d -v ek_data:/home/elastic -p 9200:9200 -p 5601:5601 nshou/elasticsearch-kibana
 ```
 
 *Github Container Registry*
 ```bash
+# No persistence
 docker run -d -p 9200:9200 -p 5601:5601 ghcr.io/nshou/elasticsearch-kibana
+
+# Persistent data
+docker run -d -v ek_data:/home/elastic -p 9200:9200 -p 5601:5601 ghcr.io/nshou/elasticsearch-kibana
 ```
+
+
 ---
 
 ### `ENV` Mutable Variables
 
-|           Name            |    Type   |                                  Description                                   |
-|---------------------------|-----------|--------------------------------------------------------------------------------|
-| `SSL_MODE`                | `boolean` | Toggles between SSL / TLS Modes for Elasticsearch + Kibana.                    |
-| `ELASTIC_PASSWORD_RESET`  | `string`  | Set a manual password on boot to use for the `elastic` superuser.              |
-| `RANDOM_PASSWORD_ON_BOOT` | `boolean` | Sets a random password on boot. Overrides `ELASTIC_PASSWORD_RESET` if enabled. |
+|           Name            |    Type   |                                  Description                                    |
+|---------------------------|-----------|---------------------------------------------------------------------------------|
+| `SSL_MODE`                | `boolean` | Toggles between SSL / TLS Modes for Elasticsearch + Kibana. *(default: `true`)* |
+| `RANDOM_PASSWORD_ON_BOOT` | `boolean` | Sets a random password on boot. Overrides `ELASTIC_PASSWORD_RESET` if enabled.  |
+| `ELASTIC_PASSWORD_RESET`  | `string`  | Set a manual password on boot to use for the `elastic` superuser.               |
+| `ELASTIC_VERSION`         | `string`  | Elasticsearch Version to use for downloading.                                   |
+| `KIBANA_VERSION`          | `string`  | Kibana Version to use for downloading.                                          |
+
 
 ---
 
 ### Resetting `elastic` user password
 If for some reason your password does not get shows as being reset in the console you can run the following command inside of the container.
 ```bash
-elasticsearch-${EK_VERSION}/bin/elasticsearch-reset-password \
+elasticsearch/bin/elasticsearch-reset-password \
       -v \
       --url "https://localhost:9200" \
       -u elastic \
       -b \
       -i \
       -E xpack.security.http.ssl.enabled=true \
-      -E xpack.security.http.ssl.certificate=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/instance/instance.crt \
-      -E xpack.security.http.ssl.key=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/instance/instance.key \
-      -E xpack.security.http.ssl.certificate_authorities=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/ca/ca.crt
-```
-
-### Enable/Disable Security Features
-If you wish to run this image with no security features enabled, you can toggle SSL/TLS mode with the `SSL_MODE` ENV parameter.
-```bash
-# Docker Image
-docker run -d -p 9200:9200 -p 5601:5601 -e SSL_MODE=false nshou/elasticsearch-kibana
-
-# Github Container Registry
-docker run -d -p 9200:9200 -p 5601:5601 -e SSL_MODE=false ghcr.io/nshou/elasticsearch-kibana
+      -E xpack.security.http.ssl.certificate=/home/elastic/elasticsearch/config/certs/instance/instance.crt \
+      -E xpack.security.http.ssl.key=/home/elastic/elasticsearch/config/certs/instance/instance.key \
+      -E xpack.security.http.ssl.certificate_authorities=/home/elastic/elasticsearch/config/certs/ca/ca.crt
 ```
 
 ### Tags
-
 Tag     | Elasticsearch | Kibana
 ------- | ------------- | ------
 latest  | 8.10.4        | 8.10.4

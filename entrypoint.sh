@@ -23,41 +23,31 @@ if [[ ! -f /home/elastic/cert_bundle.zip ]]; then
   # ----------------------------
   
   # Generate CA HTTP Certs
-  elasticsearch-${EK_VERSION}/bin/elasticsearch-certutil ca --silent --pem --out /home/elastic/ca_bundle.zip
-  unzip -qq /home/elastic/ca_bundle.zip -d /home/elastic/elasticsearch-${EK_VERSION}/config/certs/
+  elasticsearch/bin/elasticsearch-certutil ca --silent --pem --out /home/elastic/ca_bundle.zip
+  unzip -qq /home/elastic/ca_bundle.zip -d /home/elastic/elasticsearch/config/certs/
 
-  # Generate SSL HTTP Certs
-  elasticsearch-${EK_VERSION}/bin/elasticsearch-certutil cert \
+  # Elastic/Kibana HTTPS SSL Certificates
+  elasticsearch/bin/elasticsearch-certutil cert \
     --silent \
     --pem \
     --out /home/elastic/cert_bundle.zip \
-    --ca-cert /home/elastic/elasticsearch-${EK_VERSION}/config/certs/ca/ca.crt \
-    --ca-key /home/elastic/elasticsearch-${EK_VERSION}/config/certs/ca/ca.key \
+    --ca-cert /home/elastic/elasticsearch/config/certs/ca/ca.crt \
+    --ca-key /home/elastic/elasticsearch/config/certs/ca/ca.key \
     --dns localhost \
     --dns ${HOSTNAME} \
     --ip 127.0.0.1;
-  unzip -qq /home/elastic/cert_bundle.zip -d /home/elastic/elasticsearch-${EK_VERSION}/config/certs/
 
-
-  # Kibana SSL HTTP CSR Generation
-  elasticsearch-${EK_VERSION}/bin/elasticsearch-certutil csr \
+  # Kibana SSL CSR Self-Signer
+  elasticsearch/bin/elasticsearch-certutil csr \
     --silent \
     -dns ${HOSTNAME} \
     -name ${HOSTNAME} \
-    --out /home/elastic/kibana_csr_bundle.zip;
-  unzip -qq /home/elastic/kibana_csr_bundle.zip -d /home/elastic/kibana-${EK_VERSION}/
+    --out /home/elastic/csr_bundle.zip;
 
-  # Setup Kibana HTTP SSL Certs
-  elasticsearch-${EK_VERSION}/bin/elasticsearch-certutil cert \
-    --silent \
-    --pem \
-    --out /home/elastic/kibana_cert_bundle.zip \
-    --dns localhost \
-    --dns ${HOSTNAME} \
-    --ca-cert /home/elastic/elasticsearch-${EK_VERSION}/config/certs/ca/ca.crt \
-    --ca-key /home/elastic/elasticsearch-${EK_VERSION}/config/certs/ca/ca.key \
-    --ip 127.0.0.1;
-  unzip -qq /home/elastic/kibana_cert_bundle.zip -d /home/elastic/kibana-${EK_VERSION}/
+  # Extract all certificates
+  unzip -qq /home/elastic/cert_bundle.zip -d /home/elastic/elasticsearch/config/certs/
+  unzip -qq /home/elastic/cert_bundle.zip -d /home/elastic/kibana/
+  unzip -qq /home/elastic/csr_bundle.zip  -d /home/elastic/kibana/
 
   # ----------------------------
   # AUTHENTICATION SETUP
@@ -70,73 +60,78 @@ if [[ ! -f /home/elastic/cert_bundle.zip ]]; then
   export KIBANA_PASSWORD
 
   # Generate new token
-  KIBANA_SERVICE_TOKEN=$(elasticsearch-${EK_VERSION}/bin/elasticsearch-service-tokens create elastic/kibana default | cut -d '=' -f2 | tr -d ' ')
+  KIBANA_SERVICE_TOKEN=$(elasticsearch/bin/elasticsearch-service-tokens create elastic/kibana default | cut -d '=' -f2 | tr -d ' ')
 
   # ----------------------------
 fi
 
-echo "----------------------------------------------------------------------------------"
-echo "------------------------- STARTING ELASTIC/KIBANA --------------------------------"
-echo "SSL ENABLED: '${SSL_MODE}'"
-echo "----------------------------------------------------------------------------------"
+  echo "+---------------------------------------------------+"
+  echo "|      Elastic/Kibana stack is now [STARTING]       |"
+  echo "|---------------------------------------------------|"
+printf "|     SSL ENABLED: %-32s |\n" "'${SSL_MODE}'"
+printf "| RANDOM PASSWORD: %-32s |\n" "'${RANDOM_PASSWORD_ON_BOOT}'"
+  echo "+---------------------------------------------------+"
+
 
 if [[ "${SSL_MODE}" == "true" ]]; then
   # ----------------------------
   # Start Elastic / Kibana [SSL]
   # ----------------------------
   
-  elasticsearch-${EK_VERSION}/bin/elasticsearch \
+  elasticsearch/bin/elasticsearch \
     --quiet \
     -E http.host=0.0.0.0 \
     -E xpack.security.enabled=true \
     -E xpack.monitoring.collection.enabled=true \
     -E xpack.security.http.ssl.enabled=true \
-    -E xpack.security.http.ssl.certificate=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/instance/instance.crt \
-    -E xpack.security.http.ssl.key=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/instance/instance.key \
-    -E xpack.security.http.ssl.certificate_authorities=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/ca/ca.crt \
+    -E xpack.security.http.ssl.certificate=/home/elastic/elasticsearch/config/certs/instance/instance.crt \
+    -E xpack.security.http.ssl.key=/home/elastic/elasticsearch/config/certs/instance/instance.key \
+    -E xpack.security.http.ssl.certificate_authorities=/home/elastic/elasticsearch/config/certs/ca/ca.crt \
     -E xpack.security.transport.ssl.enabled=true \
     -E xpack.security.transport.ssl.verification_mode=certificate \
-    -E xpack.security.transport.ssl.certificate=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/instance/instance.crt \
-    -E xpack.security.transport.ssl.key=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/instance/instance.key \
-    -E xpack.security.transport.ssl.certificate_authorities=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/ca/ca.crt \
+    -E xpack.security.transport.ssl.certificate=/home/elastic/elasticsearch/config/certs/instance/instance.crt \
+    -E xpack.security.transport.ssl.key=/home/elastic/elasticsearch/config/certs/instance/instance.key \
+    -E xpack.security.transport.ssl.certificate_authorities=/home/elastic/elasticsearch/config/certs/ca/ca.crt \
     -E xpack.license.self_generated.type=basic & 
 
   while [ "$password_reset_elastic" = false ]; do
     if check_elasticsearch_running; then
-      sleep 5;
-      if [ "$RANDOM_PASSWORD_ON_BOOT" = true ]; do
-        elasticsearch-${EK_VERSION}/bin/elasticsearch-reset-password \
-        --url "https://localhost:9200" \
-        -u elastic \
-        -b \
-        -E xpack.security.http.ssl.enabled=true \
-        -E xpack.security.http.ssl.certificate=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/instance/instance.crt \
-        -E xpack.security.http.ssl.key=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/instance/instance.key \
-        -E xpack.security.http.ssl.certificate_authorities=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/ca/ca.crt >/dev/null 2>&1
+      sleep 5
+      if [ "$RANDOM_PASSWORD_ON_BOOT" = true ]; then
+        ELASTIC_PASSWORD_RESET=$(
+          elasticsearch/bin/elasticsearch-reset-password \
+          --url "https://localhost:9200" \
+          -u elastic \
+          -b \
+          -E xpack.security.http.ssl.enabled=true \
+          -E xpack.security.http.ssl.certificate=/home/elastic/elasticsearch/config/certs/instance/instance.crt \
+          -E xpack.security.http.ssl.key=/home/elastic/elasticsearch/config/certs/instance/instance.key \
+          -E xpack.security.http.ssl.certificate_authorities=/home/elastic/elasticsearch/config/certs/ca/ca.crt \
+          | awk '/New value:/ {print $3}'
+        );
       else
-        printf "$ELASTIC_PASSWORD_RESET\n$ELASTIC_PASSWORD_RESET" | elasticsearch-${EK_VERSION}/bin/elasticsearch-reset-password \
+        printf "$ELASTIC_PASSWORD_RESET\n$ELASTIC_PASSWORD_RESET" | elasticsearch/bin/elasticsearch-reset-password \
         --url "https://localhost:9200" \
         -u elastic \
         -i \
         -b \
         -E xpack.security.http.ssl.enabled=true \
-        -E xpack.security.http.ssl.certificate=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/instance/instance.crt \
-        -E xpack.security.http.ssl.key=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/instance/instance.key \
-        -E xpack.security.http.ssl.certificate_authorities=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/ca/ca.crt >/dev/null 2>&1
+        -E xpack.security.http.ssl.certificate=/home/elastic/elasticsearch/config/certs/instance/instance.crt \
+        -E xpack.security.http.ssl.key=/home/elastic/elasticsearch/config/certs/instance/instance.key \
+        -E xpack.security.http.ssl.certificate_authorities=/home/elastic/elasticsearch/config/certs/ca/ca.crt >/dev/null 2>&1
       fi
-      exit_code=$?
-      if [ $exit_code -eq 0 ]; then
-
-        # Place the password into the filesystem as `.env`
-        echo "ELASTIC_PASSWORD_RESET=$ELASTIC_PASSWORD_RESET" >> /home/elastic/.env
+      if [ $? -eq 0 ]; then
 
         # Output password details to console post-start
-        echo "----------------------------------------------------------------------------------"
-        echo "Elasticsearch + Kibana is now fully configured, you may access the stack below"
-        echo "     URL: https://localhost:5601/"
-        echo "    User: 'elastic'"
-        echo "Password: '$ELASTIC_PASSWORD_RESET'"
-        echo "----------------------------------------------------------------------------------"
+        echo "+------------------------------------------------------+"
+        echo "| Your stack is now [RUNNING] you may access it below. |"
+        echo "|------------------------------------------------------|"
+        echo "|  SSL Enabled?: 'true'                                |"
+        echo "| Elasticsearch: https://localhost:9200/               |"
+        echo "|        Kibana: https://localhost:5601/               |"
+        echo "|          User: 'elastic'                             |";
+        echo "|      Password: '$ELASTIC_PASSWORD_RESET'";
+        echo "+------------------------------------------------------+"
         password_reset_elastic=true
       fi
     else
@@ -144,18 +139,18 @@ if [[ "${SSL_MODE}" == "true" ]]; then
     fi
   done &
 
-  kibana-${EK_VERSION}/bin/kibana \
+  kibana/bin/kibana \
     -Q \
     --allow-root \
     --host 0.0.0.0 \
     --server.ssl.enabled=true \
     --server.publicBaseUrl https://localhost.local \
-    --server.ssl.certificate=/home/elastic/kibana-${EK_VERSION}/instance/instance.crt \
-    --server.ssl.key=/home/elastic/kibana-${EK_VERSION}/instance/instance.key \
+    --server.ssl.certificate=/home/elastic/kibana/instance/instance.crt \
+    --server.ssl.key=/home/elastic/kibana/instance/instance.key \
     --elasticsearch.hosts https://localhost:9200 \
-    --elasticsearch.ssl.certificateAuthorities=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/ca/ca.crt \
-    --elasticsearch.ssl.certificate=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/instance/instance.crt \
-    --elasticsearch.ssl.key=/home/elastic/elasticsearch-${EK_VERSION}/config/certs/instance/instance.key \
+    --elasticsearch.ssl.certificateAuthorities=/home/elastic/elasticsearch/config/certs/ca/ca.crt \
+    --elasticsearch.ssl.certificate=/home/elastic/elasticsearch/config/certs/instance/instance.crt \
+    --elasticsearch.ssl.key=/home/elastic/elasticsearch/config/certs/instance/instance.key \
     --elasticsearch.ssl.verificationMode=certificate \
     --elasticsearch.serviceAccountToken=${KIBANA_SERVICE_TOKEN}
 
@@ -163,16 +158,21 @@ elif [[ "${SSL_MODE}" == "false" ]]; then
   # ----------------------------
   # Start Elastic / Kibana [NO-SSL]
   # ----------------------------
-  echo "------- Starting Elasticsearch + Kibana -------"
-  echo "       Kibana URL: http://localhost:5601/"
-  echo "Elasticsearch URL: http://localhost:9200/"
-  echo "-----------------------------------------------"
+  echo "+------------------------------------------------------+"
+  echo "| Your stack is now [RUNNING] you may access it below. |"
+  echo "|------------------------------------------------------|"
+  echo "|  SSL Enabled?: 'false'                               |"
+  echo "| Elasticsearch: http://localhost:9200/                |"
+  echo "|        Kibana: http://localhost:5601/                |"
+  echo "|          User: 'elastic'                             |"
+  echo "|      Password: '$ELASTIC_PASSWORD_RESET'"
+  echo "+------------------------------------------------------+"
 
-  elasticsearch-${EK_VERSION}/bin/elasticsearch \
+  elasticsearch/bin/elasticsearch \
     -E http.host=0.0.0.0 \
     -E xpack.security.enabled=false \
     --quiet &
-  kibana-${EK_VERSION}/bin/kibana \
+  kibana/bin/kibana \
     --allow-root \
     --host 0.0.0.0 \
     -Q

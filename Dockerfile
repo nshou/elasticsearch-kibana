@@ -2,17 +2,11 @@ FROM ubuntu:latest
 
 LABEL maintainer "nshou <nshou@coronocoya.net>"
 
-# Elasticsearch / Kibana Stack version.
-ENV EK_VERSION=8.10.4
-
-# Enable Security for Elasticsearch / Kibana.
+# Elasticsearch / Kibana Settings
+ENV ELASTIC_VERSION=8.10.4
+ENV KIBANA_VERSION=8.10.4
 ENV SSL_MODE=true
-
-# Generate a random password at start or not
-# NOTE: If this is set then the `ELASTIC_PASSWORD_RESET` is disabled.
 ENV RANDOM_PASSWORD_ON_BOOT=true
-
-# Elasticsearch 'elastic' superuser password.
 ENV ELASTIC_PASSWORD_RESET=mysupersecretpassword
 
 
@@ -26,10 +20,16 @@ USER elastic
 
 WORKDIR /home/elastic
 
-RUN wget -q -O - https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${EK_VERSION}-linux-x86_64.tar.gz | tar -zx \
-    && mkdir -p elasticsearch-${EK_VERSION}/data
+# Create working data directories
+RUN mkdir -p /home/elastic/elasticsearch
+RUN mkdir -p /home/elastic/kibana
 
-RUN wget -q -O - https://artifacts.elastic.co/downloads/kibana/kibana-${EK_VERSION}-linux-x86_64.tar.gz | tar -zx
+# Disable Legacy OpenSSL Providers
+RUN echo "--openssl-legacy-provider"
+
+# Download assets from `elastic.co`
+RUN wget --show-progress -q -O - https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ELASTIC_VERSION}-linux-x86_64.tar.gz | tar -zx -C /home/elastic/elasticsearch --strip-components=1
+RUN wget --show-progress -q -O - https://artifacts.elastic.co/downloads/kibana/kibana-${KIBANA_VERSION}-linux-x86_64.tar.gz | tar -zx -C /home/elastic/kibana --strip-components=1
 
 COPY entrypoint.sh .
 
